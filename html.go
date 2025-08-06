@@ -120,7 +120,7 @@ func (cfg *config) addExternalPage(normalizedURL string) {
 func printReport(pages map[string]int, baseURL string) {
 	fmt.Printf(`
 =============================
-  REPORT for %v
+  REPORT for %v internal links
 =============================
 `, baseURL)
 

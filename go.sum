@@ -1,2 +1,4 @@
+fyne.io/fyne/v2 v2.6.2 h1:RPgwmXWn+EuP/TKwO7w5p73ILVC26qHD9j3CZUZNwgM=
+fyne.io/fyne/v2 v2.6.2/go.mod h1:9IJ8uWgzfcMossFoUkLiOrUIEtaDvF4nML114WiCtXU=
 golang.org/x/net v0.42.0 h1:jzkYrhi3YQWD6MLBJcsklgQsoAcw89EcZbJw8Z614hs=
 golang.org/x/net v0.42.0/go.mod h1:FF1RA5d3u7nAYA4z2TkclSCKh68eSXtiFwcWQpPXdt8=

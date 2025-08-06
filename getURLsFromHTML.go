@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -48,6 +49,9 @@ func GetURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 		log.Fatal(err)
 	}
 
+	emailRegex := regexp.MustCompile(`[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}`)
+	phoneRegex := regexp.MustCompile(`^(?:\+?61\s?|0)(?:4\d{2}\s?\d{3}\s?\d{3}|[2378]\s?\d{4}\s?\d{4})$`)
+
 	// Modify here for looking for other elements
 	// Add phone number
 	// add email
@@ -56,6 +60,8 @@ func GetURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	//
 
 	for n := range nodeTree.Descendants() {
+
+		emailPhone(n, emailRegex, phoneRegex)
 		if n.Type == html.ElementNode && n.DataAtom == atom.A {
 			for _, a := range n.Attr {
 				if a.Key == "href" {
@@ -106,3 +112,50 @@ func GetURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	return links, nil
 
 }
+
+/*
+ ChatGPT generated code for transversing the whole HTML Tree
+
+ * import (
+     "fmt"
+     "log"
+     "strings"
+
+     "golang.org/x/net/html"
+ )
+
+ // Recursive tree traversal
+ func traverse(n *html.Node, depth int) {
+     indent := strings.Repeat("  ", depth)
+
+     switch n.Type {
+     case html.DocumentNode:
+         fmt.Printf("%s[Document]\n", indent)
+     case html.DoctypeNode:
+         fmt.Printf("%s<!DOCTYPE %s>\n", indent, n.Data)
+     case html.ElementNode:
+         fmt.Printf("%s<%s", indent, n.Data)
+         for _, attr := range n.Attr {
+             fmt.Printf(" %s=\"%s\"", attr.Key, attr.Val)
+         }
+         fmt.Println(">")
+     case html.TextNode:
+         text := strings.TrimSpace(n.Data)
+         if text != "" {
+             fmt.Printf("%s\"%s\"\n", indent, text)
+         }
+     case html.CommentNode:
+         fmt.Printf("%s<!-- %s -->\n", indent, n.Data)
+     default:
+         fmt.Printf("%s[Unknown node type]\n", indent)
+     }
+
+     for c := n.FirstChild; c != nil; c = c.NextSibling {
+         traverse(c, depth+1)
+     }
+ }
+
+ *
+ *
+ *
+*/

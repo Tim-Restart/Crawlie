@@ -1,5 +1,7 @@
 # Crawlie
-A webcrawler to parse html docmumets
+A CLI webcrawler to parse websites and return a report for specific items.
+
+
 
 ## Crawlie Functions
 
