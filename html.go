@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 )
@@ -33,7 +34,7 @@ func GetHTML(rawURL string) (string, error) {
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
 
-	fmt.Printf("Crawling: %v\n", rawCurrentURL)
+	//fmt.Printf("Crawling: %v\n", rawCurrentURL)
 	//	cfg.concurrencyControl <- struct{}{}
 	//	defer func() {
 	//		<-cfg.concurrencyControl
@@ -61,7 +62,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 	err = compareURL(cfg.baseURL, rawCurrentURL)
 	if err != nil {
 		cfg.addExternalPage(rawCurrentURL)
-		fmt.Println(err)
+		//fmt.Println(err)
 		return
 	}
 
@@ -76,7 +77,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 
 	}
 
-	links, err2 := GetURLsFromHTML(html, rawCurrentURL)
+	links, err2 := cfg.GetURLsFromHTML(html, rawCurrentURL)
 	if err2 != nil {
 		fmt.Println("Error getting links from HTML")
 		return
@@ -106,12 +107,15 @@ func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
 func (cfg *config) addExternalPage(normalizedURL string) {
 	//	cfg.mu.Lock()
 	//	defer cfg.mu.Unlock()
-
-	if _, exists := cfg.external[normalizedURL]; exists {
-		cfg.external[normalizedURL]++
+	unescapedURL, err := url.PathUnescape(normalizedURL)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if _, exists := cfg.external[unescapedURL]; exists {
+		cfg.external[unescapedURL]++
 		return
 	} else {
-		cfg.external[normalizedURL] = 1
+		cfg.external[unescapedURL] = 1
 		return
 	}
 
@@ -120,14 +124,14 @@ func (cfg *config) addExternalPage(normalizedURL string) {
 func printReport(pages map[string]int, baseURL string) {
 	fmt.Printf(`
 =============================
-  REPORT for %v internal links
+  Report for %v internal links
 =============================
 `, baseURL)
 
 	sortedPageMap := sorted(pages)
 
 	for page, value := range sortedPageMap {
-		fmt.Printf("Found %v internal links to %v\n", page, value)
+		fmt.Printf("%v. Internal Links: %v\n", page, value)
 	}
 
 	// Sorting logic
@@ -141,14 +145,14 @@ func printReport(pages map[string]int, baseURL string) {
 func printReportExternal(pages map[string]int, baseURL string) {
 	fmt.Printf(`
 =============================
-  REPORT for external Links for %v
+  Report for external Links for %v
 =============================
 `, baseURL)
 
 	sortedPageMap := sorted(pages)
 
 	for page, value := range sortedPageMap {
-		fmt.Printf("Found %v external links to %v\n", page, value)
+		fmt.Printf("%v. External Link: %v\n", page, value)
 	}
 
 	// Sorting logic

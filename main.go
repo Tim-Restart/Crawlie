@@ -15,6 +15,8 @@ import (
 type config struct {
 	pages              map[string]int
 	external           map[string]int
+	email              map[string]int
+	phone              map[string]int
 	baseURL            *url.URL
 	mu                 *sync.Mutex
 	concurrencyControl chan struct{}
@@ -59,7 +61,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("exited switch Statment")
+	//fmt.Println("exited switch Statment")
 	baseURLParsed, err := stringToURL(website)
 	if err != nil {
 		fmt.Println("Failed to parse Base URL")
@@ -70,6 +72,8 @@ func main() {
 	cfg := &config{
 		pages:    make(map[string]int),
 		external: make(map[string]int),
+		email:    make(map[string]int),
+		phone:    make(map[string]int),
 		baseURL:  baseURLParsed,
 		//	mu:      &sync.Mutex{},
 		//	concurrencyControl: make(chan struct{}, maxConcurrency),
@@ -85,6 +89,8 @@ func main() {
 
 	printReport(cfg.pages, website)
 	printReportExternal(cfg.external, website)
+	cfg.printReportEmail(website)
+	cfg.printReportPhone(website)
 
 	//	cfg.mu.Unlock()
 	return
