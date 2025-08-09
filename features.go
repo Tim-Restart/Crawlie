@@ -11,6 +11,8 @@ import (
 func (cfg *config) addToEmail(emailAdd string) {
 
 	// Add thread safe mutex here
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
 
 	if _, exists := cfg.email[emailAdd]; exists {
 		cfg.email[emailAdd]++
@@ -24,6 +26,8 @@ func (cfg *config) addToEmail(emailAdd string) {
 func (cfg *config) addToPhone(phoneNum string) {
 
 	// Add thread safe mutex here
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
 
 	if _, exists := cfg.phone[phoneNum]; exists {
 		cfg.phone[phoneNum]++

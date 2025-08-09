@@ -2,13 +2,8 @@ package main
 
 import (
 	"fmt"
-
-	//"log"
 	"net/url"
 	"os"
-
-	//"strconv"
-	//
 	"sync"
 )
 
@@ -26,7 +21,7 @@ type config struct {
 
 func main() {
 
-	//var maxConcurrency int
+	var maxConcurrency int
 	//	var maxPagesSet int
 	// Removed max page at this time as not anticipated to use
 
@@ -39,8 +34,8 @@ func main() {
 	case 2:
 		fmt.Printf("starting crawl of: %v\n", os.Args[1])
 		website = os.Args[1]
-	//	fmt.Println("Max pages set to default 10 and concurrency set to default 5")
-	//	maxConcurrency = 5
+		fmt.Println("Max concurrency set to default 5")
+		maxConcurrency = 5
 	//	maxPagesSet = 10
 	//case 3:
 	//	fmt.Printf("starting crawl of: %v\n", os.Args[1])
@@ -75,24 +70,24 @@ func main() {
 		email:    make(map[string]int),
 		phone:    make(map[string]int),
 		baseURL:  baseURLParsed,
-		//	mu:      &sync.Mutex{},
-		//	concurrencyControl: make(chan struct{}, maxConcurrency),
-		//	wg: &sync.WaitGroup{},
+		mu:      &sync.Mutex{},
+		concurrencyControl: make(chan struct{}, maxConcurrency),
+		wg: &sync.WaitGroup{},
 		//maxPages:           maxPagesSet,
 	}
 
-	//cfg.wg.Add(1)
-	cfg.crawlPage(website)
-	//	cfg.wg.Wait()
+	cfg.wg.Add(1)
+	go cfg.crawlPage(website)
+	cfg.wg.Wait()
 
-	//	cfg.mu.Lock()
+	cfg.mu.Lock()
 
 	printReport(cfg.pages, website)
 	printReportExternal(cfg.external, website)
 	cfg.printReportEmail(website)
 	cfg.printReportPhone(website)
 
-	//	cfg.mu.Unlock()
+	cfg.mu.Unlock()
 	return
 
 }
