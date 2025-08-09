@@ -20,7 +20,7 @@ func normalizeURL(link string) (string, error) {
 	}
 
 	sanatised := normalUrl.Host + normalUrl.Path
-	fmt.Println(sanatised)
+	//fmt.Println(sanatised)
 	return strings.TrimSuffix(sanatised, "/"), nil
 }
 
@@ -42,7 +42,8 @@ func compareURL(baseURL *url.URL, currentURL string) error {
 	}
 }
 
-// func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool)
+
+
 
 func stringToURL(link string) (*url.URL, error) {
 	baseURLParsed, err := url.Parse(link)

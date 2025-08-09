@@ -34,7 +34,7 @@ func GetHTML(rawURL string) (string, error) {
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
 
-	fmt.Printf("Crawling: %v\n", rawCurrentURL)
+	//fmt.Printf("Crawling: %v\n", rawCurrentURL)
 		cfg.concurrencyControl <- struct{}{}
 		defer func() {
 			<-cfg.concurrencyControl
@@ -85,7 +85,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 
 	for _, newLink := range links {
 		cfg.wg.Add(1)
-		go cfg.crawlPage(newLink) // removed go routine from here
+		go cfg.crawlPage(newLink) 
 	}
 
 }
@@ -103,7 +103,7 @@ func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
 	return true
 }
 
-// Add external ages to a map in the cfg struct
+// Add external pages to a map in the cfg struct
 func (cfg *config) addExternalPage(normalizedURL string) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()

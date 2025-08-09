@@ -5,6 +5,9 @@ import (
 	"net/url"
 	"os"
 	"sync"
+	"strconv"
+	"time"
+	"github.com/briandowns/spinner"
 )
 
 type config struct {
@@ -37,11 +40,11 @@ func main() {
 		fmt.Println("Max concurrency set to default 5")
 		maxConcurrency = 5
 	//	maxPagesSet = 10
-	//case 3:
-	//	fmt.Printf("starting crawl of: %v\n", os.Args[1])
-	//	website = os.Args[1]
-	//	maxConcurrency, _ = strconv.Atoi(os.Args[2])
-	//	fmt.Printf("Max Concurrency set to : %v\n", maxConcurrency)
+	case 3:
+		fmt.Printf("starting crawl of: %v\n", os.Args[1])
+		website = os.Args[1]
+		maxConcurrency, _ = strconv.Atoi(os.Args[2])
+		fmt.Printf("Max Concurrency set to : %v\n", maxConcurrency)
 	//	fmt.Println("Max pages set to default 10")
 	//	maxPagesSet = 10
 	//case 4:
@@ -76,12 +79,17 @@ func main() {
 		//maxPages:           maxPagesSet,
 	}
 
+	s := spinner.New(spinner.CharSets[35], 100*time.Millisecond)
+	s.Color("blue")
+	s.Suffix = " Crawling... "
+
 	cfg.wg.Add(1)
+	s.Start()
 	go cfg.crawlPage(website)
 	cfg.wg.Wait()
 
 	cfg.mu.Lock()
-
+	s.Stop()
 	printReport(cfg.pages, website)
 	printReportExternal(cfg.external, website)
 	cfg.printReportEmail(website)
