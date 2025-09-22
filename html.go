@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"sort"
 	"strings"
+	"time"
 )
 
 func GetHTML(rawURL string) (string, error) {
@@ -81,6 +82,11 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 	if err2 != nil {
 		fmt.Println("Error getting links from HTML")
 		return
+	}
+
+	// Timeout delay added here
+	if cfg.delayRequest != 0 {
+		time.Sleep(time.Duration(cfg.delayRequest) * time.Second)
 	}
 
 	for _, newLink := range links {

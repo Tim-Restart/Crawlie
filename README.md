@@ -1,7 +1,6 @@
 # Crawlie
+
 A CLI webcrawler to parse websites and return a report for specific items.
-
-
 
 ## Crawlie Functions
 
@@ -24,8 +23,6 @@ Crawlie will identify any phone numbers that are within the HTML and return them
 
 #### Proposed features
 
-- Identify any application contact details
-- Identify any commercial products used for site construction (probs not, I think warpayzler does this fine)
 - Identify and return server host location
 - Identify reverse DNS results
 - Identify other domains hosted on the same DNS server

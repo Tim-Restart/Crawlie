@@ -20,6 +20,7 @@ type config struct {
 	concurrencyControl chan struct{}
 	wg                 *sync.WaitGroup
 	maxPages           int
+	delayRequest	   int
 }
 
 func main() {
@@ -29,6 +30,7 @@ func main() {
 	// Removed max page at this time as not anticipated to use
 
 	var website string
+	delayReqs := 0 // Delay requests default to 0, set in case 3 if required, and done in seconds
 
 	switch len(os.Args) {
 	case 1:
@@ -47,11 +49,12 @@ func main() {
 		fmt.Printf("Max Concurrency set to : %v\n", maxConcurrency)
 	//	fmt.Println("Max pages set to default 10")
 	//	maxPagesSet = 10
-	//case 4:
-	//	fmt.Printf("starting crawl of: %v\n", os.Args[1])
-	//	website = os.Args[1]
-	//	maxConcurrency, _ = strconv.Atoi(os.Args[2])
-	//	fmt.Printf("Max Concurrency set to : %v\n", maxConcurrency)
+	case 4:
+		fmt.Printf("starting crawl of: %v\n", os.Args[1])
+		website = os.Args[1]
+		maxConcurrency, _ = strconv.Atoi(os.Args[2])
+		delayReqs, _ = strconv.Atoi(os.Args[3])
+		fmt.Printf("Max Concurrency set to : %v\nDelay Request set to: %v", maxConcurrency, delayReqs)
 	//	maxPagesSet, _ = strconv.Atoi(os.Args[3])
 	//	fmt.Printf("Max pages set to : %v\n", maxPagesSet)
 	default:
@@ -77,6 +80,7 @@ func main() {
 		concurrencyControl: make(chan struct{}, maxConcurrency),
 		wg: &sync.WaitGroup{},
 		//maxPages:           maxPagesSet,
+		delayRequest: delayReqs,
 	}
 
 	s := spinner.New(spinner.CharSets[35], 100*time.Millisecond)
