@@ -7,8 +7,38 @@ import (
 	"sync"
 	"strconv"
 	"time"
-	"github.com/briandowns/spinner"
+	//"github.com/briandowns/spinner"
+	"image/color"
+	//"log"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
+
+// Layout for the GUI - Currently setup for IPloc, to be changed to Crawlie specs
+
+func desktopLayout(input *widget.Entry, button, helpButton *widget.Button, fixedContainer, fixedLabels *fyne.Container, rect *canvas.Rectangle) *fyne.Container {
+	return container.NewGridWithRows(3,
+		container.NewGridWithColumns(3, // 3 x 3 grid made
+			layout.NewSpacer(), // First spacer on left, first column first row
+			container.NewVBox( // Second Column in first row (actually two items)
+				inputDomain,
+				inputConcurrency,
+				inputDelay,
+			),
+			layout.NewSpacer(), // Third Column in first row
+		),
+		container.NewVBox(
+			fixedLabels,
+			rect,
+			fixedContainer,
+		),
+	)
+}
 
 type config struct {
 	pages              map[string]int
@@ -24,6 +54,34 @@ type config struct {
 }
 
 func main() {
+
+	myApp := app.New()
+	myWindow := myApp.NewWindow("Crawlie GUI")
+
+	// Three inputs boxes which have defaults if not set
+	// Domain - No default, what are you doing if you don't set this
+	// Concurrency - sets how many go routines to spawn for searching concurrently
+	// Max delay between requests - done in seconds
+
+	inputDomain := widget.NewEntry()
+	inputDomain.SetPlaceHolder("Enter Website to Crawl")
+	inputDomain.Resize(fyne.NewSize(100,20))
+
+	inputConcurrency := widget.NewEntry()
+	inputConcurrency.SetPlaceHolder("Enter how many threads")
+	inputConcurrency.Resize(fyne.NewSize(50,20))
+
+	inputDelay := widget.NewEntry()
+	inputDelay.SetPlaceHolder("Enter request delay")
+	inputDelay.Resize(fyne.NewSize(50,20))
+	
+
+	var domain []string
+
+	button := widget.NewButton("Crawl", func() {
+		table.Refresh()
+		domain = checkInput(input.Text)
+	})
 
 	var maxConcurrency int
 	//	var maxPagesSet int
@@ -83,9 +141,13 @@ func main() {
 		delayRequest: delayReqs,
 	}
 
+	/* Not required for GUI Version
+
 	s := spinner.New(spinner.CharSets[35], 100*time.Millisecond)
 	s.Color("blue")
 	s.Suffix = " Crawling... "
+
+	*/
 
 	cfg.wg.Add(1)
 	s.Start()
