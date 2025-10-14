@@ -6,9 +6,9 @@ import (
 	"os"
 	"sync"
 	"strconv"
-	"time"
+	//"time"
 	//"github.com/briandowns/spinner"
-	"image/color"
+	//"image/color"
 	//"log"
 
 	"fyne.io/fyne/v2"
@@ -21,8 +21,8 @@ import (
 
 // Layout for the GUI - Currently setup for IPloc, to be changed to Crawlie specs
 
-func desktopLayout(input *widget.Entry, button, helpButton *widget.Button, fixedContainer, fixedLabels *fyne.Container, rect *canvas.Rectangle) *fyne.Container {
-	return container.NewGridWithRows(3,
+func desktopLayout(inputDomain, inputConcurrency, inputDelay *widget.Entry, button, helpButton *widget.Button, fixedContainer, fixedLabels *fyne.Container, rect *canvas.Rectangle) *fyne.Container {
+	return container.NewGridWithRows(8, // 8 rows for results/input
 		container.NewGridWithColumns(3, // 3 x 3 grid made
 			layout.NewSpacer(), // First spacer on left, first column first row
 			container.NewVBox( // Second Column in first row (actually two items)
@@ -90,6 +90,11 @@ func main() {
 	var website string
 	delayReqs := 0 // Delay requests default to 0, set in case 3 if required, and done in seconds
 
+
+	// CLI input code - left for reference whilst building GUI
+
+	/*
+
 	switch len(os.Args) {
 	case 1:
 		fmt.Println("no website provided")
@@ -127,6 +132,8 @@ func main() {
 		return
 	}
 
+	*/
+
 	// Pickup here with the Mu and channels stuff
 	cfg := &config{
 		pages:    make(map[string]int),
@@ -162,6 +169,30 @@ func main() {
 	cfg.printReportPhone(website)
 
 	cfg.mu.Unlock()
-	return
+
+
+	// Layout for GUI defined here - likely can move to seperate package, but start from here
+
+	phoneNumberLabel := widget.NewLabel("Phone Numbers")
+	phoneNumberLabel.Resize(fyne.NewSize(80, 20))
+	phoneNumberLabel.Move(fyne.NewPos(10, 0))
+
+	emailLabel := widget.NewLabel("Emails")
+	emailLabel.Resize(fyne.NewSize(80, 20))
+	emailLabel.Move(fyne.NewPos(10, 0))
+
+	internalLinksLabel := widget.NewLabel("Internal Links")
+	internalLinksLabel.Resize(fyne.NewSize(80, 20))
+	internalLinksLabel.Move(fyne.NewPos(10, 0))
+
+	ExternalLinksLabel := widget.NewLabel("External Links")
+	ExternalLinksLabel.Resize(fyne.NewSize(80, 20))
+	ExternalLinksLabel.Move(fyne.NewPos(10, 0))
+
+
+
+
+
+	// return - Likely not needed now as is gui
 
 }
