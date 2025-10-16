@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -14,11 +15,8 @@ func (cfg *config) addToEmail(emailAdd string) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 
-	if _, exists := cfg.email[emailAdd]; exists {
-		cfg.email[emailAdd]++
-		return
-	} else {
-		cfg.email[emailAdd] = 1
+	if slices.Contains(cfg.email, emailAdd) {
+		cfg.email = append(cfg.email, emailAdd)
 		return
 	}
 }
@@ -79,28 +77,50 @@ func (cfg *config) emailPhone(n *html.Node, emailRegex, phoneRegex *regexp.Regex
 	}
 }
 
-func (cfg *config) printReportEmail(baseURL string) {
-	fmt.Printf(`
-=============================
-  Report for Email addresses for %v
-=============================
-`, baseURL)
-
-	for email, _ := range cfg.email {
-		fmt.Printf("Email address: %v\n", email)
+func (cfg *config) intToStringPages() {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	for key, value := range cfg.pages {
+		convertedValue := strconv.Itoa(value)
+		cfg.pagesG[key] = convertedValue
 	}
-
 }
 
-func (cfg *config) printReportPhone(baseURL string) {
-	fmt.Printf(`
-=============================
-  Report for Phone Numbers for %v
-=============================
-`, baseURL)
-
-	for n, _ := range cfg.phone {
-		fmt.Printf("Phone Number: %v\n", n)
+func (cfg *config) intToStringExternal() {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	for key, value := range cfg.external {
+		convertedValue := strconv.Itoa(value)
+		cfg.externalG[key] = convertedValue
 	}
+}
 
+func (cfg *config) intToStringEmail() {
+	cfg.mu.Lock()
+	defer cfg.mu.Lock()
+	cfg.emailKeys = make([]string, 0, len(cfg.email))
+	for k := range cfg.email {
+		cfg.emailKeys = append(cfg.emailKeys, k)
+	}
+}
+
+/*
+func (cfg *config) intToStringEmail() {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	for key, value := range cfg.email {
+		convertedValue := strconv.Itoa(value)
+		cfg.emailG[key] = convertedValue
+	}
+}
+
+*/
+
+func (cfg *config) intToStringPhone() {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	for key, value := range cfg.phone {
+		convertedValue := strconv.Itoa(value)
+		cfg.phoneG[key] = convertedValue
+	}
 }

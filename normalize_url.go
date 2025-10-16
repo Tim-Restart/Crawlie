@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 )
 
 func normalizeURL(link string) (string, error) {
-
+	log.Println("Normalizing URL")
 	// url input is the string that needs to be sanatised
 	// An example of a normalized url is : blog.boot.dev/path
 	// Inital thoughts are to detect and remove prefixes for http/https
@@ -41,9 +42,6 @@ func compareURL(baseURL *url.URL, currentURL string) error {
 		return nil
 	}
 }
-
-
-
 
 func stringToURL(link string) (*url.URL, error) {
 	baseURLParsed, err := url.Parse(link)

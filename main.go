@@ -23,8 +23,8 @@ import (
 //
 // inputDomain, inputConcurrency, inputDelay, crawlButton, phoneNumberLabel, emailLabel, internalLinksLabel, externalLinksLabel
 
-func desktopLayout(inputDomain, inputConcurrency, inputDelay *widget.Entry, crawlButton *widget.Button, phoneNumberLabel, emailLabel, internalLinksLabel, externalLinksLabel *widget.Label, phoneNumberTable, emailTable, externalTable, internalTable *widget.Table) *fyne.Container {
-	return container.NewGridWithRows(9, // 8 rows for results/input
+func desktopLayout(inputDomain, inputConcurrency, inputDelay *widget.Entry, crawlButton *widget.Button, emailTable *widget.List) *fyne.Container {
+	return container.NewGridWithRows(5, // 5 rows for results/input
 		container.NewGridWithColumns(3, // 3 x 3 grid made - This is row 1/9
 			layout.NewSpacer(), // First spacer on left, first column first row
 			container.NewVBox( // Second Column in first row (actually two items)
@@ -34,22 +34,18 @@ func desktopLayout(inputDomain, inputConcurrency, inputDelay *widget.Entry, craw
 			),
 			crawlButton, // Third Column in first row
 		),
-		phoneNumberLabel,   // This is row 2/9
-		phoneNumberTable,   // This is row 3/9
-		emailLabel,         // This is row 4/9
-		emailTable,         // This is row 5/9
-		internalLinksLabel, // This is row 6/9
-		externalTable,      // This is row 7/9
-		externalLinksLabel, // This is row 8/9
-		internalTable,      // This is row 9/9
+		//phoneNumberTable, // This is row 2/5
+		emailTable, // This is row 3/5
+		//externalTable,    // This is row 4/5
+		//internalTable,    // This is row 5/5
 	)
 }
 
 type config struct {
-	pages              map[string]int
-	external           map[string]int
-	email              map[string]int
-	phone              map[string]int
+	pages              []string
+	external           []string
+	email              []string
+	phone              []string
 	baseURL            *url.URL
 	mu                 *sync.Mutex
 	concurrencyControl chan struct{}
@@ -84,16 +80,12 @@ func main() {
 	log.Println("Setup Inputs")
 
 	cfg := &config{
-		pages:    make(map[string]int),
-		external: make(map[string]int),
-		email:    make(map[string]int),
-		phone:    make(map[string]int),
-		//baseURL:            baseURLParsed,
 		mu: &sync.Mutex{},
 		//concurrencyControl: make(chan struct{}, maxConcurrency),
 		wg: &sync.WaitGroup{},
 		//maxPages:           maxPagesSet,
 		//delayRequest: delayReqs,
+		email: []string{},
 	}
 	log.Println("cfg initialized")
 
@@ -132,15 +124,19 @@ func main() {
 		*/
 
 		cfg.wg.Add(1)
-		log.Println("This might print")
-		go cfg.crawlPage(website)
-		log.Println("Then this one")
+		//log.Println("This might print")
+		cfg.crawlPage(website)
+		log.Println("Converting Maps")
+		cfg.intToStringPages()
+		cfg.intToStringExternal()
+		cfg.intToStringPhone()
+		cfg.intToStringEmail()
 		cfg.wg.Wait()
-		log.Println("Doubt this will")
+		//log.Println("Doubt this will")
 
 	})
 
-	log.Println("Crawl Button Created")
+	//log.Println("Crawl Button Created")
 
 	// CLI input code - left for reference whilst building GUI
 
@@ -173,74 +169,93 @@ func main() {
 
 	//cfg.mu.Unlock()
 
-	log.Println("Bet this doesn't print")
+	//log.Println("Bet this doesn't print")
 
 	// Layout for GUI defined here - likely can move to seperate package, but start from here
 
-	phoneNumberLabel := widget.NewLabel("Phone Numbers")
-	phoneNumberLabel.Resize(fyne.NewSize(80, 20))
-	phoneNumberLabel.Move(fyne.NewPos(10, 0))
+	//cfg.phoneG[string("445 445 556")] = string("1")
+	cfg.email["test@gmail.com"] = 2
+	//cfg.externalG["https://test.com"] = "5"
+	//cfg.pagesG["http://dev/h.com"] = "1"
 
-	emailLabel := widget.NewLabel("Emails")
-	emailLabel.Resize(fyne.NewSize(80, 20))
-	emailLabel.Move(fyne.NewPos(10, 0))
+	/*
 
-	internalLinksLabel := widget.NewLabel("Internal Links")
-	internalLinksLabel.Resize(fyne.NewSize(80, 20))
-	internalLinksLabel.Move(fyne.NewPos(10, 0))
+		phoneNumberTable := widget.NewTable(
+			func() (int, int) {
+				return len(cfg.phoneG), 2
+			},
+			func() fyne.CanvasObject {
+				return widget.NewLabel("phone numbers")
+			},
+			func(i widget.TableCellID, o fyne.CanvasObject) {
+				labelPhone := o.(*widget.Label)
+				labelPhone.SetText(cfg.phoneG[i.Row][i.Col])
+			})
 
-	externalLinksLabel := widget.NewLabel("external Links")
-	externalLinksLabel.Resize(fyne.NewSize(80, 20))
-	externalLinksLabel.Move(fyne.NewPos(10, 0))
+		phoneNumberTable.ShowHeaderRow = true
+		phoneNumberTable.CreateHeader = func() fyne.CanvasObject {
+			return widget.NewLabel("")
+		}
 
-	var data = [][]string{[]string{"top left", "top right"},
-		[]string{"bottom left", "bottom right"}}
+		phoneNumberTable.UpdateHeader = func(id widget.TableCellID, o fyne.CanvasObject) {
+			label := o.(*widget.Label)
+			switch id.Col {
+			case 0:
+				label.SetText("Number")
+			case 1:
+				label.SetText("Phone Number")
+			}
+		}
 
-	phoneNumberTable := widget.NewTable(
-		func() (int, int) {
-			return len(data), 2
+	*/
+
+	emailTable := widget.NewList(
+		func() int {
+			return len(cfg.emailKeys)
 		},
 		func() fyne.CanvasObject {
-			return widget.NewLabel("phone numbers")
+			return container.NewHBox(
+				widget.NewLabel(""), // For key
+				widget.NewLabel(""), // For value
+			)
 		},
-		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col]) // Do a int conversion to string? Helper func perhaps?
-		})
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			container := o.(*fyne.Container)
+			keyLabel := container.Objects[0].(*widget.Label)
+			valLabel := container.Objects[1].(*widget.Label)
 
-	emailTable := widget.NewTable(
-		func() (int, int) {
-			return len(cfg.email), 2
+			key := cfg.emailKeys[i]
+			keyLabel.SetText(key)
+			valInt, _ := strconv.Atoi(key)
+			valLabel.SetText(cfg.emailKeys[valInt])
 		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("Email addresses")
-		},
-		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col]) // Do a int conversion to string? Helper func perhaps?
-		})
+	)
+	/*
+		internalTable := widget.NewTable(
+			func() (int, int) {
+				return len(cfg.pagesG), 2
+			},
+			func() fyne.CanvasObject {
+				return widget.NewLabel("Internal pages")
+			},
+			func(i widget.TableCellID, o fyne.CanvasObject) {
+				o.(*widget.Label).SetText(cfg.pagesG[i.Row][i.Col])
+			})
 
-	internalTable := widget.NewTable(
-		func() (int, int) {
-			return len(cfg.pages), 2
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("Internal pages")
-		},
-		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col]) // Do a int conversion to string? Helper func perhaps?
-		})
+		externalTable := widget.NewTable(
+			func() (int, int) {
+				return len(cfg.externalG), 2
+			},
+			func() fyne.CanvasObject {
+				return widget.NewLabel("External Links")
+			},
+			func(i widget.TableCellID, o fyne.CanvasObject) {
+				o.(*widget.Label).SetText(cfg.externalG[i.Row][i.Col])
+			})
 
-	externalTable := widget.NewTable(
-		func() (int, int) {
-			return len(cfg.external), 2
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("External Links")
-		},
-		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col]) // Do a int conversion to string? Helper func perhaps?
-		})
+	*/
 
-	myWindow.SetContent(desktopLayout(inputDomain, inputConcurrency, inputDelay, crawlButton, phoneNumberLabel, emailLabel, internalLinksLabel, externalLinksLabel, phoneNumberTable, emailTable, externalTable, internalTable))
+	myWindow.SetContent(desktopLayout(inputDomain, inputConcurrency, inputDelay, crawlButton, emailTable))
 	myWindow.ShowAndRun()
 
 	// return - Likely not needed now as is gui

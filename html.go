@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"sort"
@@ -34,13 +35,13 @@ func GetHTML(rawURL string) (string, error) {
 }
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
-
+	log.Printf("Crawling: %v\n", rawCurrentURL)
 	//fmt.Printf("Crawling: %v\n", rawCurrentURL)
-		cfg.concurrencyControl <- struct{}{}
-		defer func() {
-			<-cfg.concurrencyControl
-			cfg.wg.Done()
-		}()
+	cfg.concurrencyControl <- struct{}{}
+	defer func() {
+		<-cfg.concurrencyControl
+		cfg.wg.Done()
+	}()
 
 	//	cfg.mu.Lock()
 	//	if len(cfg.pages) >= cfg.maxPages {
@@ -48,7 +49,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 	//		cfg.mu.Unlock()
 	//		return
 	//	}
-		// cfg.mu.Unlock() I think this is only needed for the above?
+	// cfg.mu.Unlock() I think this is only needed for the above?
 
 	// Base and Current are the same for the first
 	// Current is used to do the calls, base is used for a base case
@@ -91,7 +92,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 
 	for _, newLink := range links {
 		cfg.wg.Add(1)
-		go cfg.crawlPage(newLink) 
+		go cfg.crawlPage(newLink)
 	}
 
 }
